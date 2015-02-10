@@ -70,8 +70,6 @@
 		},
 
 		handler: function (ev) {
-			ev.preventDefault();
-
 			switch (ev.type) {
 				case 'touchstart':
 					if(touchStart === false) {
@@ -81,6 +79,7 @@
 					}
 				case 'mousedown':
 					if(touchStart === false) {
+						ev.preventDefault();
 						touchStart = true;
 						xStart = ev.pageX;
 						yStart = ev.pageY;
@@ -88,6 +87,8 @@
 				case 'mousemove':
 				case 'touchmove':
 					if(touchStart === true) {
+						if(ev.type == 'mousemove')
+							ev.preventDefault();
 						var pageX = typeof ev.pageX == 'undefined' ? ev.originalEvent.touches[0].pageX : ev.pageX;
 						var pageY = typeof ev.pageY == 'undefined' ? ev.originalEvent.touches[0].pageY : ev.pageY;
 						var deltaX = parseInt(pageX) - parseInt(xStart);
@@ -110,7 +111,7 @@
 							this.pane.find(this.settings.dislikeSelector).css('opacity', opa);
 							this.pane.find(this.settings.likeSelector).css('opacity', 0);
 						}
-						if (Math.abs(deltaY) >= 10 && opa < 1.0)
+						if (Math.abs(deltaY) >= 25 && opa < 1.0)
 							this.touchEndHandler(ev);
 					}
 					break;
@@ -118,7 +119,8 @@
 		},
 
 		touchEndHandler: function (ev) {
-			ev.preventDefault();
+			if(ev.type == 'mouseup')
+				ev.preventDefault();
 
 			touchStart = false;
 			var pageX = (typeof ev.pageX == 'undefined') ? ev.originalEvent.changedTouches[0].pageX : ev.pageX;
