@@ -19,11 +19,6 @@
 			dislikeSelector: '.dislike'
 		};
 
-	var xStart = 0;
-	var yStart = 0;
-	var touchStart = false;
-	var posX = 0, posY = 0, lastPosX = 0, lastPosY = 0;
-
 	function Plugin(element, options) {
 		this.element = element;
 		this.settings = $.extend({}, defaults, options);
@@ -37,6 +32,13 @@
 		init: function (element) {
 			this.pane = $(element);
 			this.pane_width = this.pane.width();
+			this.touchStart = false;
+			this.xStart = 0;
+			this.yStart = 0;
+			this.lastPosX = 0;
+			this.lastPosY = 0;
+			this.posX = 0;
+			this.posY = 0;
 
 			$(element).bind('touchstart', $.proxy(this.handler, this));
 			$(element).bind('touchmove', $.proxy(this.handler, this));
@@ -72,41 +74,41 @@
 		handler: function (ev) {
 			switch (ev.type) {
 				case 'touchstart':
-					if(touchStart === false) {
-						touchStart = true;
-						xStart = ev.originalEvent.touches[0].pageX;
-						yStart = ev.originalEvent.touches[0].pageY;
+					if(this.touchStart === false) {
+						this.touchStart = true;
+						this.xStart = ev.originalEvent.touches[0].pageX;
+						this.yStart = ev.originalEvent.touches[0].pageY;
 					}
 				case 'mousedown':
-					if(touchStart === false) {
+					if(this.touchStart === false) {
 						ev.preventDefault();
-						touchStart = true;
-						xStart = ev.pageX;
-						yStart = ev.pageY;
+						this.touchStart = true;
+						this.xStart = ev.pageX;
+						this.yStart = ev.pageY;
 					}
 				case 'mousemove':
 				case 'touchmove':
-					if(touchStart === true) {
+					if(this.touchStart === true) {
 						if(ev.type == 'mousemove')
 							ev.preventDefault();
 						var pageX = typeof ev.pageX == 'undefined' ? ev.originalEvent.touches[0].pageX : ev.pageX;
 						var pageY = typeof ev.pageY == 'undefined' ? ev.originalEvent.touches[0].pageY : ev.pageY;
-						var deltaX = parseInt(pageX) - parseInt(xStart);
-						var deltaY = parseInt(pageY) - parseInt(yStart);
+						var deltaX = parseInt(pageX) - parseInt(this.xStart);
+						var deltaY = parseInt(pageY) - parseInt(this.yStart);
 						var percent = deltaX * 100 / this.pane_width;
-						posX = deltaX + lastPosX;
-						posY = deltaY + lastPosY;
+						this.posX = deltaX + this.lastPosX;
+						this.posY = deltaY + this.lastPosY;
 
-						this.pane.css("transform", "translate(" + posX + "px," + posY + "px) rotate(" + (percent / 2) + "deg)");
+						this.pane.css("transform", "translate(" + this.posX + "px," + this.posY + "px) rotate(" + (percent / 2) + "deg)");
 
 						var opa = (Math.abs(deltaX) / this.settings.threshold) / 100;
 						if(opa > 1.0) {
 							opa = 1.0;
 						}
-						if (posX >= 0) {
+						if (this.posX >= 0) {
 							this.pane.find(this.settings.likeSelector).css('opacity', opa);
 							this.pane.find(this.settings.dislikeSelector).css('opacity', 0);
-						} else if (posX < 0) {
+						} else if (this.posX < 0) {
 
 							this.pane.find(this.settings.dislikeSelector).css('opacity', opa);
 							this.pane.find(this.settings.likeSelector).css('opacity', 0);
@@ -120,27 +122,27 @@
 			if(ev.type == 'mouseup')
 				ev.preventDefault();
 
-			touchStart = false;
+			this.touchStart = false;
 			var pageX = (typeof ev.pageX == 'undefined') ? ev.originalEvent.changedTouches[0].pageX : ev.pageX;
 			var pageY = (typeof ev.pageY == 'undefined') ? ev.originalEvent.changedTouches[0].pageY : ev.pageY;
-			var deltaX = parseInt(pageX) - parseInt(xStart);
-			var deltaY = parseInt(pageY) - parseInt(yStart);
+			var deltaX = parseInt(pageX) - parseInt(this.xStart);
+			var deltaY = parseInt(pageY) - parseInt(this.yStart);
 
-			posX = deltaX + lastPosX;
-			posY = deltaY + lastPosY;
+			this.posX = deltaX + this.lastPosX;
+			this.posY = deltaY + this.lastPosY;
 			var opa = Math.abs((Math.abs(deltaX) / this.settings.threshold) / 100);
 
 			var self = this;
 			if (opa >= 1) {
-				if (posX > 0) {
-					this.pane.animate({"transform": "translate(" + (this.pane_width) + "px," + (posY + this.pane_width) + "px) rotate(60deg)"}, this.settings.animationSpeed, function () {
+				if (this.posX > 0) {
+					this.pane.animate({"transform": "translate(" + (this.pane_width) + "px," + (this.posY + this.pane_width) + "px) rotate(60deg)"}, this.settings.animationSpeed, function () {
 						if(self.settings.onLike) {
 							self.settings.onLike(self.pane);
 						}
 						self.next();
 					});
 				} else {
-					this.pane.animate({"transform": "translate(-" + (this.pane_width) + "px," + (posY + this.pane_width) + "px) rotate(-60deg)"}, this.settings.animationSpeed, function () {
+					this.pane.animate({"transform": "translate(-" + (this.pane_width) + "px," + (this.posY + this.pane_width) + "px) rotate(-60deg)"}, this.settings.animationSpeed, function () {
 						if(self.settings.onDislike) {
 							self.settings.onDislike(self.pane);
 						}
@@ -148,8 +150,8 @@
 					});
 				}
 			} else {
-				lastPosX = 0;
-				lastPosY = 0;
+				this.lastPosX = 0;
+				this.lastPosY = 0;
 				this.pane.animate({"transform": "translate(0px,0px) rotate(0deg)"}, this.settings.animationRevertSpeed);
 				this.pane.find(this.settings.likeSelector).animate({"opacity": 0}, this.settings.animationRevertSpeed);
 				this.pane.find(this.settings.dislikeSelector).animate({"opacity": 0}, this.settings.animationRevertSpeed);
