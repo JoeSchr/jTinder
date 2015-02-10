@@ -98,7 +98,7 @@
 
 						this.pane.css("transform", "translate(" + posX + "px," + posY + "px) rotate(" + (percent / 2) + "deg)");
 
-						var opa = (Math.abs(deltaX) / this.settings.threshold) / 100 + 0.2;
+						var opa = (Math.abs(deltaX) / this.settings.threshold) / 100;
 						if(opa > 1.0) {
 							opa = 1.0;
 						}
@@ -128,7 +128,7 @@
 
 			posX = deltaX + lastPosX;
 			posY = deltaY + lastPosY;
-			var opa = Math.abs((Math.abs(deltaX) / this.settings.threshold) / 100 + 0.2);
+			var opa = Math.abs((Math.abs(deltaX) / this.settings.threshold) / 100);
 
 			var self = this;
 			if (opa >= 1) {
