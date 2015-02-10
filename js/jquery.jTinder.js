@@ -38,9 +38,9 @@
 			this.pane = $(element);
 			this.pane_width = this.pane.width();
 
-			$(element).bind('touchstart mousedown', $.proxy(this.handler, this));
-			$(element).bind('touchmove mousemove', $.proxy(this.handler, this));
-			$(element).bind('touchend mouseup', $.proxy(this.touchEndHandler, this));
+			$(element).bind('touchstart', $.proxy(this.handler, this));
+			$(element).bind('touchmove', $.proxy(this.handler, this));
+			$(element).bind('touchend', $.proxy(this.touchEndHandler, this));
 		},
 
 		next: function () {
