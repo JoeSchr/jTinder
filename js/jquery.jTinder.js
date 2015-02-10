@@ -82,7 +82,11 @@
 		},
 
 		calcOpacity: function (delta) {
-			var opa = (Math.abs(delta.x) / this.settings.threshold) / 100;
+			var x = delta.x;
+			var ratio = Math.abs(delta.y) / (1 + Math.abs(x));
+			if(ratio > 1.0)
+				x /= ratio;
+			var opa = (Math.abs(x) / this.settings.threshold) / 100;
 			if(opa > 1.0) {
 				opa = 1.0;
 			}
