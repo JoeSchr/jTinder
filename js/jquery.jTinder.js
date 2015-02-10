@@ -71,6 +71,24 @@
 			});
 		},
 
+		calcPos: function (pageX, pageY) {
+			var delta = {
+				x: parseInt(pageX) - parseInt(this.xStart),
+				y: parseInt(pageY) - parseInt(this.yStart)
+			};
+			this.posX = delta.x + this.lastPosX;
+			this.posY = delta.y + this.lastPosY;
+			return delta;
+		},
+
+		calcOpacity: function (delta) {
+			var opa = (Math.abs(delta.x) / this.settings.threshold) / 100;
+			if(opa > 1.0) {
+				opa = 1.0;
+			}
+			return opa;
+		},
+
 		handler: function (ev) {
 			switch (ev.type) {
 				case 'touchstart':
@@ -93,18 +111,13 @@
 							ev.preventDefault();
 						var pageX = typeof ev.pageX == 'undefined' ? ev.originalEvent.touches[0].pageX : ev.pageX;
 						var pageY = typeof ev.pageY == 'undefined' ? ev.originalEvent.touches[0].pageY : ev.pageY;
-						var deltaX = parseInt(pageX) - parseInt(this.xStart);
-						var deltaY = parseInt(pageY) - parseInt(this.yStart);
-						var percent = deltaX * 100 / this.pane_width;
-						this.posX = deltaX + this.lastPosX;
-						this.posY = deltaY + this.lastPosY;
+						var delta = this.calcPos(pageX, pageY);
+
+						var percent = delta.x * 100 / this.pane_width;
 
 						this.pane.css("transform", "translate(" + this.posX + "px," + this.posY + "px) rotate(" + (percent / 2) + "deg)");
 
-						var opa = (Math.abs(deltaX) / this.settings.threshold) / 100;
-						if(opa > 1.0) {
-							opa = 1.0;
-						}
+						var opa = this.calcOpacity(delta);
 						if (this.posX >= 0) {
 							this.pane.find(this.settings.likeSelector).css('opacity', opa);
 							this.pane.find(this.settings.dislikeSelector).css('opacity', 0);
@@ -123,14 +136,10 @@
 				ev.preventDefault();
 
 			this.touchStart = false;
-			var pageX = (typeof ev.pageX == 'undefined') ? ev.originalEvent.changedTouches[0].pageX : ev.pageX;
-			var pageY = (typeof ev.pageY == 'undefined') ? ev.originalEvent.changedTouches[0].pageY : ev.pageY;
-			var deltaX = parseInt(pageX) - parseInt(this.xStart);
-			var deltaY = parseInt(pageY) - parseInt(this.yStart);
-
-			this.posX = deltaX + this.lastPosX;
-			this.posY = deltaY + this.lastPosY;
-			var opa = Math.abs((Math.abs(deltaX) / this.settings.threshold) / 100);
+      var pageX = (typeof ev.pageX == 'undefined') ? ev.originalEvent.changedTouches[0].pageX : ev.pageX;
+      var pageY = (typeof ev.pageY == 'undefined') ? ev.originalEvent.changedTouches[0].pageY : ev.pageY;
+			var delta = this.calcPos(pageX, pageY);
+			var opa = this.calcOpacity(delta);
 
 			var self = this;
 			if (opa >= 1) {
