@@ -111,8 +111,6 @@
 							this.pane.find(this.settings.dislikeSelector).css('opacity', opa);
 							this.pane.find(this.settings.likeSelector).css('opacity', 0);
 						}
-						if (Math.abs(deltaY) >= 25 && opa < 1.0)
-							this.touchEndHandler(ev);
 					}
 					break;
 			}
