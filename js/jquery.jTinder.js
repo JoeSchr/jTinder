@@ -44,9 +44,9 @@
 		},
 
 		next: function () {
-			this.pane.animate({"opacity": "0"});
-			this.pane.animate({"transform": "none"});
-			this.pane.animate({"opacity": "1"});
+			this.pane.animate({"opacity": "0"}, 1);
+			this.pane.animate({"transform": "none"}, 1);
+			this.pane.animate({"opacity": "1"}, this.settings.animationRevertSpeed);
 		},
 
 		dislike: function() {
