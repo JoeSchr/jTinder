@@ -35,6 +35,7 @@
 			this.touchStart = false;
 			this.xStart = 0;
 			this.yStart = 0;
+			this.scrollStart = 0;
 			this.lastPosX = 0;
 			this.lastPosY = 0;
 			this.posX = 0;
@@ -83,7 +84,14 @@
 
 		calcOpacity: function (delta) {
 			var x = delta.x;
-			var ratio = Math.abs(delta.y) / (1 + Math.abs(x));
+			var t = 1 + Math.abs(x);
+			if (t > 100.0)
+				t = 100.0;
+			var y = Math.abs(delta.y);
+			var s = 2.0 * Math.abs($(window).scrollTop() - this.scrollStart);
+			if (s > y)
+				y = s;
+			var ratio = y / t;
 			if(ratio > 1.0)
 				x /= ratio;
 			var opa = (Math.abs(x) / this.settings.threshold) / 100;
@@ -100,6 +108,7 @@
 						this.touchStart = true;
 						this.xStart = ev.originalEvent.touches[0].pageX;
 						this.yStart = ev.originalEvent.touches[0].pageY;
+						this.scrollStart = $(window).scrollTop();
 					}
 				case 'mousedown':
 					if(this.touchStart === false) {
@@ -107,6 +116,7 @@
 						this.touchStart = true;
 						this.xStart = ev.pageX;
 						this.yStart = ev.pageY;
+						this.scrollStart = $(window).scrollTop();
 					}
 				case 'mousemove':
 				case 'touchmove':
@@ -119,9 +129,13 @@
 
 						var percent = delta.x * 100 / this.pane_width;
 
-						this.pane.css("transform", "translate(" + this.posX + "px," + this.posY + "px) rotate(" + (percent / 2) + "deg)");
-
 						var opa = this.calcOpacity(delta);
+						if (opa >= 0.2)
+							ev.preventDefault();
+
+						if(!this.pane.is(':animated'))
+							this.pane.animate({"transform": "translate(" + this.posX + "px," + this.posY + "px) rotate(" + (percent / 2) + "deg)"}, 1);
+
 						if (this.posX >= 0) {
 							this.pane.find(this.settings.likeSelector).css('opacity', opa);
 							this.pane.find(this.settings.dislikeSelector).css('opacity', 0);
