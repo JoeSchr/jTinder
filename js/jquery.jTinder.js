@@ -134,7 +134,7 @@
 							ev.preventDefault();
 
 						if(!this.pane.is(':animated'))
-							this.pane.animate({"transform": "translate(" + this.posX + "px," + this.posY + "px) rotate(" + (percent / 2) + "deg)"}, 1);
+							this.pane.animate({"transform": "translate(" + this.posX + "px, 0px) rotate(" + (percent / 2) + "deg)"}, 1);
 
 						if (this.posX >= 0) {
 							this.pane.find(this.settings.likeSelector).css('opacity', opa);
