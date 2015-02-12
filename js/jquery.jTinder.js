@@ -47,29 +47,22 @@
 		},
 
 		next: function () {
-			this.pane.animate({"opacity": "0"}, 1);
-			this.pane.animate({"transform": "none"}, 1);
-			this.pane.animate({"opacity": "1"}, this.settings.animationRevertSpeed);
+			likePane.animate({'opacity': 0}, 1000);
+			dislikePane.animate({'opacity': 0}, 1000);
 		},
 
 		dislike: function() {
-			var self = this;
-			this.pane.animate({"transform": "translate(-" + (this.pane_width) + "px," + (this.pane_width*-1.5) + "px) rotate(-60deg)"}, this.settings.animationSpeed, function () {
-				if(self.settings.onDislike) {
-					self.settings.onDislike(self.pane);
-				}
-				self.next();
-			});
+			if(this.settings.onDislike) {
+				this.settings.onDislike(this.pane);
+			}
+			this.next();
 		},
 
 		like: function() {
-			var self = this;
-			this.pane.animate({"transform": "translate(" + (this.pane_width) + "px," + (this.pane_width*-1.5) + "px) rotate(60deg)"}, this.settings.animationSpeed, function () {
-				if(self.settings.onLike) {
-					self.settings.onLike(self.pane);
-				}
-				self.next();
-			});
+			if(this.settings.onLike) {
+				this.settings.onLike(this.pane);
+			}
+			this.next();
 		},
 
 		calcPos: function (pageX, pageY) {
@@ -133,16 +126,17 @@
 						if (opa >= 0.2)
 							ev.preventDefault();
 
-						if(!this.pane.is(':animated'))
-							this.pane.animate({"transform": "translate(" + this.posX + "px, 0px) rotate(" + (percent / 2) + "deg)"}, 1);
+						likePane = this.pane.find(this.settings.likeSelector);
+						dislikePane = this.pane.find(this.settings.dislikeSelector);
 
 						if (this.posX >= 0) {
-							this.pane.find(this.settings.likeSelector).css('opacity', opa);
-							this.pane.find(this.settings.dislikeSelector).css('opacity', 0);
+							likePane.css('transform', "translate(" + this.posX + "px, 0px) rotate(" + (percent / 2) + "deg)");
+							likePane.css('opacity', opa);
+							dislikePane.css('opacity', 0);
 						} else if (this.posX < 0) {
-
-							this.pane.find(this.settings.dislikeSelector).css('opacity', opa);
-							this.pane.find(this.settings.likeSelector).css('opacity', 0);
+							dislikePane.css('transform', "translate(" + this.posX + "px, 0px) rotate(" + (percent / 2) + "deg)");
+							dislikePane.css('opacity', opa);
+							likePane.css('opacity', 0);
 						}
 					}
 					break;
@@ -162,26 +156,15 @@
 			var self = this;
 			if (opa >= 1) {
 				if (this.posX > 0) {
-					this.pane.animate({"transform": "translate(" + (this.pane_width) + "px," + (this.posY + this.pane_width) + "px) rotate(60deg)"}, this.settings.animationSpeed, function () {
-						if(self.settings.onLike) {
-							self.settings.onLike(self.pane);
-						}
-						self.next();
-					});
+					this.like();
 				} else {
-					this.pane.animate({"transform": "translate(-" + (this.pane_width) + "px," + (this.posY + this.pane_width) + "px) rotate(-60deg)"}, this.settings.animationSpeed, function () {
-						if(self.settings.onDislike) {
-							self.settings.onDislike(self.pane);
-						}
-						self.next();
-					});
+					this.dislike();
 				}
 			} else {
 				this.lastPosX = 0;
 				this.lastPosY = 0;
-				this.pane.animate({"transform": "translate(0px,0px) rotate(0deg)"}, this.settings.animationRevertSpeed);
-				this.pane.find(this.settings.likeSelector).animate({"opacity": 0}, this.settings.animationRevertSpeed);
-				this.pane.find(this.settings.dislikeSelector).animate({"opacity": 0}, this.settings.animationRevertSpeed);
+				this.pane.find(this.settings.likeSelector).animate({"opacity": 0, "transform": "translate(0px,0px) rotate(0deg)"}, this.settings.animationRevertSpeed);
+				this.pane.find(this.settings.dislikeSelector).animate({"opacity": 0, "transform": "translate(0px,0px) rotate(0deg)"}, this.settings.animationRevertSpeed);
 			}
 		}
 	};
