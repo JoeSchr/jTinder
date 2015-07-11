@@ -1,14 +1,21 @@
-jTinder v.2.0.0
--------------------------
-Created: 2014-05-26
-By: Dominik Weber
-Licensed under GPL Version 2.
+jTinder, infinite fork v.2.0.0
+========================
 Forked: 2015-07-11
 By: Joe Schroecker
 
+Fork Reason
+---------------
+
+This fork adds a feature to “infinite” load new data for the card stack from a link on the site.
+
+jTinder v.1.0.0
+--------
+Originally Created: 2014-05-26
+By: Dominik Weber
+Licensed under GPL Version 2.
+
 jTinder is a javascript library that makes rating people, products, images very easy and fast. It is optimized for mobile touch device but has also a desktop fallback.
 
-This fork adds a feature to “infinite” load new data for the card stack.
 
 jTinder Example
 -------------------------
