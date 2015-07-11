@@ -18,7 +18,7 @@
 			threshold: 1,
 			likeSelector: '.like',
 			dislikeSelector: '.dislike',
-			nextSelector: '.next'
+			nextSelector: null
 		};
 
 	function Plugin(element, options) {
@@ -120,12 +120,9 @@
 			{
 				current_pane = index-1;
 			}
-
 			/// /JOE PATCH
 		},
 
-//// / JOE PATCH
-		},
 
 		dislike: function() {
 			if(this.settings.onDislike) {
