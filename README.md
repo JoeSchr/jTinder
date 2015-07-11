@@ -83,6 +83,8 @@ dislikeSelector (Optional) - Default value: .dislike - CSS selector of a like im
 
 nextSelector (Optional) - Default value: null - CSS selector of a link which gets new data
 
+itemSelector (Optional) - Default value: .item - CSS selector of newly loaded items
+
 jTinder Methods
 -------------------------
 
@@ -114,6 +116,7 @@ $("#tinderslide").jTinder({
 	likeSelector: '.like',
 	dislikeSelector: '.dislike',
         nextSelector: '.nextNav',
+        itemSelector: '.infinite-item',
     onNextLoaded: function (items) {
         alert('New Data loaded')
     }
