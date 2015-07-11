@@ -13,6 +13,8 @@ jTinder v.1.0.0
 Originally Created: 2014-05-26
 By: Dominik Weber
 Licensed under GPL Version 2.
+Forked: 2015-07-11
+By: Joe Schroecker
 
 jTinder is a javascript library that makes rating people, products, images very easy and fast. It is optimized for mobile touch device but has also a desktop fallback.
 

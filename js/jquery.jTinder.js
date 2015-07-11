@@ -20,7 +20,6 @@
 			dislikeSelector: '.dislike',
 			nextSelector: null
 		};
-
 	function Plugin(element, options) {
 		this.element = element;
 		this.settings = $.extend({}, defaults, options);
@@ -56,7 +55,7 @@
 			likePane.animate({'opacity': 0}, 1000);
 			dislikePane.animate({'opacity': 0}, 1000);
 			this.current_pane.animate({'opacity': 0}, 1000);
-			
+
 			return this.hideTopPane();
 
 			/*container = $(">ul", element);
@@ -70,6 +69,59 @@
 			$(element).bind('touchmove mousemove', this.handler);
 			$(element).bind('touchend mouseup', this.handler);*/
 		},
+//// JOE PATCH
+	    loadNext: function()
+	    {
+	    	if(noMoreData)
+	    		return;
+	    	// loads every item singular, only if we use js
+			var NEXT_URL = this.settings.nextSelector;
+			if(nextUrl == null)
+			{
+				nextUrl = $(NEXT_URL).get(0).href;
+			}
+			var $container = container;
+			$container.prepend('<li class="loading-display"><i class="fa fa-cloud-download fa-5x"></i><br><i style="" class="loading-spinner fa fa-refresh fa-spin fa-5x"></i><div><h1>Wait for more AwwCute</h1></div></li>')
+
+			$.get(nextUrl, function(data,textStatus,jqXHR)
+			{
+				var $items = $(data).find(".item");
+				var items = $items.get();
+
+	    		$container.find(".loading-display").first().remove();
+				pane_count = $items.length + current_pane;// combine old and new items
+				//current_pane = (current_pane < 0) ? (pane_count) : (pane_count - current_pane +1);
+				current_pane = (pane_count -1);
+
+				$items.hide();
+				$container.prepend(items);
+				$items.show();
+				panes = $container.find("li:visible");
+				//picturefill(items);
+				var oldUrl = nextUrl;
+				nextUrl = $(data).find(NEXT_URL)[0].href;
+				if(nextUrl == oldUrl)
+					noMoreData = true;
+				if($that.settings.onNextLoaded)
+	    			$that.settings.onNextLoaded(items);
+
+
+			});
+	    },
+//// /JOE PATCH
+//// JOE PATCH
+		hideTopPane: function () {
+			var index = current_pane;
+			panes.eq(index).hide();
+			/// JOE PATCH
+			if(index <= 5)
+			{
+				this.loadNext();
+			}
+			else // because otherwise we have to deal with negativ index
+			{
+				current_pane = index-1;
+			}
 
 	    loadNext: function()
 	    {
