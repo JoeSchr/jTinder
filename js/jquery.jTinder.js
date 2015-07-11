@@ -32,11 +32,12 @@
 	Plugin.prototype = {
 
 		init: function (element) {
-			this.container = null;
+			this.container = $(element);
 			this.nextUrl = null;
 			this.noMoreData = false;
-			this.pane = $(element);
-			this.pane_width = this.pane.width();
+			this.panes = $(this.container.find("li:visible"));
+			this.current_pane = $(this.panes.last());
+			this.pane_width = this.current_pane.width();
 			this.touchStart = false;
 			this.xStart = 0;
 			this.yStart = 0;
@@ -46,14 +47,16 @@
 			this.posX = 0;
 			this.posY = 0;
 
-			$(element).bind('touchstart', $.proxy(this.handler, this));
-			$(element).bind('touchmove', $.proxy(this.handler, this));
-			$(element).bind('touchend', $.proxy(this.touchEndHandler, this));
+			$(element).bind('touchstart mousedown', $.proxy(this.handler, this));
+			$(element).bind('touchmove mousemove', $.proxy(this.handler, this));
+			$(element).bind('touchend mouseup', $.proxy(this.touchEndHandler, this));
 		},
 
 		next: function () {
 			likePane.animate({'opacity': 0}, 1000);
 			dislikePane.animate({'opacity': 0}, 1000);
+			this.current_pane.animate({'opacity': 0}, 1000);
+			
 			return this.hideTopPane();
 
 			/*container = $(">ul", element);
@@ -67,7 +70,7 @@
 			$(element).bind('touchmove mousemove', this.handler);
 			$(element).bind('touchend mouseup', this.handler);*/
 		},
-//// JOE PATCH
+
 	    loadNext: function()
 	    {
 	    	if(noMoreData)
@@ -106,10 +109,9 @@
 
 			});
 	    },
-//// /JOE PATCH
-//// JOE PATCH
+
 		hideTopPane: function () {
-			var index = current_pane;
+			var index = this.panes.find(":visible").length;
 			panes.eq(index).hide();
 			/// JOE PATCH
 			if(index <= 5)
@@ -126,14 +128,14 @@
 
 		dislike: function() {
 			if(this.settings.onDislike) {
-				this.settings.onDislike(this.pane);
+				this.settings.onDislike(this.current_pane);
 			}
 			this.next();
 		},
 
 		like: function() {
 			if(this.settings.onLike) {
-				this.settings.onLike(this.pane);
+				this.settings.onLike(this.current_pane);
 			}
 			this.next();
 		},
@@ -199,15 +201,15 @@
 						if (opa >= 0.2)
 							ev.preventDefault();
 
-						likePane = this.pane.find(this.settings.likeSelector);
-						dislikePane = this.pane.find(this.settings.dislikeSelector);
+						likePane = this.current_pane.find(this.settings.likeSelector);
+						dislikePane = this.current_pane.find(this.settings.dislikeSelector);
 
 						if (this.posX >= 0) {
-							likePane.css('transform', "translate(" + this.posX + "px, 0px) rotate(" + (percent / 2) + "deg)");
+							this.current_pane.css('transform', "translate(" + this.posX + "px, 0px) rotate(" + (percent / 2) + "deg)");
 							likePane.css('opacity', opa);
 							dislikePane.css('opacity', 0);
 						} else if (this.posX < 0) {
-							dislikePane.css('transform', "translate(" + this.posX + "px, 0px) rotate(" + (percent / 2) + "deg)");
+							this.current_pane.css('transform', "translate(" + this.posX + "px, 0px) rotate(" + (percent / 2) + "deg)");
 							dislikePane.css('opacity', opa);
 							likePane.css('opacity', 0);
 						}
@@ -236,8 +238,8 @@
 			} else {
 				this.lastPosX = 0;
 				this.lastPosY = 0;
-				this.pane.find(this.settings.likeSelector).animate({"opacity": 0, "transform": "translate(0px,0px) rotate(0deg)"}, this.settings.animationRevertSpeed);
-				this.pane.find(this.settings.dislikeSelector).animate({"opacity": 0, "transform": "translate(0px,0px) rotate(0deg)"}, this.settings.animationRevertSpeed);
+				this.current_pane.find(this.settings.likeSelector).animate({"opacity": 0, "transform": "translate(0px,0px) rotate(0deg)"}, this.settings.animationRevertSpeed);
+				this.current_pane.find(this.settings.dislikeSelector).animate({"opacity": 0, "transform": "translate(0px,0px) rotate(0deg)"}, this.settings.animationRevertSpeed);
 			}
 		}
 	};
