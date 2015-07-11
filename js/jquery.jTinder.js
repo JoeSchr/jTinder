@@ -12,14 +12,18 @@
 		defaults = {
 			onDislike: null,
 			onLike: null,
+			onNextLoaded: null,
 			animationRevertSpeed: 200,
 			animationSpeed: 400,
 			threshold: 1,
 			likeSelector: '.like',
-			dislikeSelector: '.dislike'
+			dislikeSelector: '.dislike',
+			nextSelector: '.next'
 		};
 
 	var container = null;
+	var nextUrl = null;
+	var noMoreData = false;
 	var panes = null;
 	var $that = null;
 	var xStart = 0;
@@ -51,14 +55,66 @@
 			$(element).bind('touchmove mousemove', this.handler);
 			$(element).bind('touchend mouseup', this.handler);
 		},
+//// JOE PATCH
+	    loadNext: function()
+	    {
+	    	if(noMoreData)
+	    		return;
+	    	// loads every item singular, only if we use js
+			var NEXT_URL = this.settings.nextSelector;
+			if(nextUrl == null)
+			{
+				nextUrl = $(NEXT_URL).get(0).href;
+			}
+			var $container = container;   
+			$container.prepend('<li class="loading-display"><i class="fa fa-cloud-download fa-5x"></i><br><i style="" class="loading-spinner fa fa-refresh fa-spin fa-5x"></i><div><h1>Wait for more AwwCute</h1></div></li>')
+			
+			$.get(nextUrl, function(data,textStatus,jqXHR)
+			{
+				var $items = $(data).find(".item");
+				var items = $items.get();
 
-		showPane: function (index) {
-			panes.eq(current_pane).hide();
-			current_pane = index;
+	    		$container.find(".loading-display").first().remove();				
+				pane_count = $items.length + current_pane;// combine old and new items
+				//current_pane = (current_pane < 0) ? (pane_count) : (pane_count - current_pane +1);
+				current_pane = (pane_count -1);
+
+				$items.hide();
+				$container.prepend(items);
+				$items.show();
+				panes = $container.find("li:visible");
+				//picturefill(items);
+				var oldUrl = nextUrl;
+				nextUrl = $(data).find(NEXT_URL)[0].href;
+				if(nextUrl == oldUrl)
+					noMoreData = true;
+				if($that.settings.onNextLoaded)
+	    			$that.settings.onNextLoaded(items);
+
+
+			});
+	    },
+//// /JOE PATCH
+//// JOE PATCH
+		hideTopPane: function () {
+			var index = current_pane;
+			panes.eq(index).hide();
+			/// JOE PATCH
+			if(index <= 5)
+			{
+				this.loadNext();
+			}
+			else // because otherwise we have to deal with negativ index
+			{
+				current_pane = index-1;
+			}
+
+			/// /JOE PATCH
 		},
 
 		next: function () {
-			return this.showPane(current_pane - 1);
+			return this.hideTopPane();
+//// / JOE PATCH			
 		},
 
 		dislike: function() {
@@ -80,7 +136,9 @@
 		},
 
 		handler: function (ev) {
-			ev.preventDefault();
+			/// JOE PATCH (.click() wont work otherwise)
+			//ev.preventDefault(); 
+			/// / JOE PATCH
 
 			switch (ev.type) {
 				case 'touchstart':
@@ -106,7 +164,8 @@
 						posX = deltaX + lastPosX;
 						posY = deltaY + lastPosY;
 
-						panes.eq(current_pane).css("transform", "translate(" + posX + "px," + posY + "px) rotate(" + (percent / 2) + "deg)");
+// PATCH JOE //			panes.eq(current_pane).css("transform", "translate(" + posX + "px," + posY + "px) rotate(" + (percent / 2) + "deg)");
+						panes.eq(current_pane).css("transform", "translate(" + posX + "px," + "0px) rotate(" + "0deg)");
 
 						var opa = (Math.abs(deltaX) / $that.settings.threshold) / 100 + 0.2;
 						if(opa > 1.0) {
