@@ -16,10 +16,13 @@
 			animationRevertSpeed: 200,
 			animationSpeed: 400,
 			threshold: 1,
+			loadNextThreshold: 5,
 			likeSelector: '.like',
-			dislikeSelector: '.dislike',
-			nextSelector: null
+			dislikeSelector: '.dislike',			
+			nextSelector: null,
+			itemSeletor: '.infinite-item'
 		};
+
 	function Plugin(element, options) {
 		this.element = element;
 		this.settings = $.extend({}, defaults, options);
@@ -31,10 +34,11 @@
 	Plugin.prototype = {
 
 		init: function (element) {
-			this.container = $(element);
-			this.nextUrl = null;
+			this.container = $(element).find("ul");
 			this.noMoreData = false;
 			this.panes = $(this.container.find("li:visible"));
+			this.index = this.panes.length; // faster if we just manage it ourselves and not recalculate evey next()
+			this.nextUrl = this.fetchNextUrl($); // fetchNextUrl from current document
 			this.current_pane = $(this.panes.last());
 			this.pane_width = this.current_pane.width();
 			this.touchStart = false;
@@ -55,128 +59,67 @@
 			likePane.animate({'opacity': 0}, 1000);
 			dislikePane.animate({'opacity': 0}, 1000);
 			this.current_pane.animate({'opacity': 0}, 1000);
-
+			
 			return this.hideTopPane();
-
-			/*container = $(">ul", element);
-			panes = $(">ul>li", element);
-			pane_width = container.width();
-			pane_count = panes.length;
-			current_pane = panes.length - 1;
-			$that = this;
-
-			$(element).bind('touchstart mousedown', this.handler);
-			$(element).bind('touchmove mousemove', this.handler);
-			$(element).bind('touchend mouseup', this.handler);*/
 		},
-//// JOE PATCH
-	    loadNext: function()
-	    {
-	    	if(noMoreData)
-	    		return;
-	    	// loads every item singular, only if we use js
-			var NEXT_URL = this.settings.nextSelector;
-			if(nextUrl == null)
-			{
-				nextUrl = $(NEXT_URL).get(0).href;
-			}
-			var $container = container;
-			$container.prepend('<li class="loading-display"><i class="fa fa-cloud-download fa-5x"></i><br><i style="" class="loading-spinner fa fa-refresh fa-spin fa-5x"></i><div><h1>Wait for more AwwCute</h1></div></li>')
-
-			$.get(nextUrl, function(data,textStatus,jqXHR)
-			{
-				var $items = $(data).find(".item");
-				var items = $items.get();
-
-	    		$container.find(".loading-display").first().remove();
-				pane_count = $items.length + current_pane;// combine old and new items
-				//current_pane = (current_pane < 0) ? (pane_count) : (pane_count - current_pane +1);
-				current_pane = (pane_count -1);
-
-				$items.hide();
-				$container.prepend(items);
-				$items.show();
-				panes = $container.find("li:visible");
-				//picturefill(items);
-				var oldUrl = nextUrl;
-				nextUrl = $(data).find(NEXT_URL)[0].href;
-				if(nextUrl == oldUrl)
-					noMoreData = true;
-				if($that.settings.onNextLoaded)
-	    			$that.settings.onNextLoaded(items);
-
-
-			});
-	    },
-//// /JOE PATCH
-//// JOE PATCH
-		hideTopPane: function () {
-			var index = current_pane;
-			panes.eq(index).hide();
-			/// JOE PATCH
-			if(index <= 5)
-			{
-				this.loadNext();
-			}
-			else // because otherwise we have to deal with negativ index
-			{
-				current_pane = index-1;
-			}
 
 	    loadNext: function()
 	    {
-	    	if(noMoreData)
+	    	if(this.noMoreData)
 	    		return;
-	    	// loads every item singular, only if we use js
-			var NEXT_URL = this.settings.nextSelector;
-			if(nextUrl == null)
+	    	
+	    	if(!this.nextUrl)  // first time or last time
+	    		this.noMoreData = True;
+
+			if(this.settings.beforeNextLoaded)
+				this.settings.beforeNextLoaded(this)
+
+
+			$.ajax({url: this.nextUrl, context: this}).done(function(data,textStatus,jqXHR)
 			{
-				nextUrl = $(NEXT_URL).get(0).href;
-			}
-			var $container = container;
-			$container.prepend('<li class="loading-display"><i class="fa fa-cloud-download fa-5x"></i><br><i style="" class="loading-spinner fa fa-refresh fa-spin fa-5x"></i><div><h1>Wait for more AwwCute</h1></div></li>')
+				var $items = $(data).find(this.settings.itemSelector);
+				
+				this.container.prepend($items);
+                this.panes = $items.parent().find("li:visible");
 
-			$.get(nextUrl, function(data,textStatus,jqXHR)
-			{
-				var $items = $(data).find(".item");
-				var items = $items.get();
+				this.index = this.panes.length-1;// combine old and new items
+				this.current_pane = $(this.panes.eq(this.index));
 
-	    		$container.find(".loading-display").first().remove();
-				pane_count = $items.length + current_pane;// combine old and new items
-				//current_pane = (current_pane < 0) ? (pane_count) : (pane_count - current_pane +1);
-				current_pane = (pane_count -1);
-
-				$items.hide();
-				$container.prepend(items);
-				$items.show();
-				panes = $container.find("li:visible");
-				//picturefill(items);
-				var oldUrl = nextUrl;
-				nextUrl = $(data).find(NEXT_URL)[0].href;
-				if(nextUrl == oldUrl)
+				var oldUrl = this.nextUrl;
+				this.nextUrl = this.fetchNextUrl($(data));
+				if(!this.nextUrl || this.nextUrl == oldUrl)
 					noMoreData = true;
-				if($that.settings.onNextLoaded)
-	    			$that.settings.onNextLoaded(items);
-
-
+				
+				this.clearUnused();
+				
+				if(this.settings.onNextLoaded) // callback
+	    			this.settings.onNextLoaded($items, this);
+	    	
 			});
 	    },
 
 		hideTopPane: function () {
-			var index = this.panes.find(":visible").length;
-			panes.eq(index).hide();
-			/// JOE PATCH
-			if(index <= 5)
+
+			this.panes.eq(this.index).hide();
+			if(this.index <=  this.settings.loadNextThreshold)
 			{
 				this.loadNext();
+				return
 			}
-			else // because otherwise we have to deal with negativ index
-			{
-				current_pane = index-1;
-			}
-			/// /JOE PATCH
+						
+			this.index--;
+			this.current_pane = this.panes.eq(this.index);
+		},
+		
+		fetchNextUrl: function($context) {
+			var link;
+			link = $context.find(this.settings.nextSelector);
+			return (link.length > 0)? (link[0].href):(null);
 		},
 
+		clearUnused: function () {
+			$(this.container.find("li:hidden")).remove();
+		},
 
 		dislike: function() {
 			if(this.settings.onDislike) {
