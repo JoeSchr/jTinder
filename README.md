@@ -1,10 +1,14 @@
-jTinder v.1.0.0
+jTinder v.2.0.0
 -------------------------
 Created: 2014-05-26
 By: Dominik Weber
 Licensed under GPL Version 2.
+Forked: 2015-07-11
+By: Joe Schroecker
 
 jTinder is a javascript library that makes rating people, products, images very easy and fast. It is optimized for mobile touch device but has also a desktop fallback.
+
+This fork adds a feature to “infinite” load new data for the card stack.
 
 jTinder Example
 -------------------------
@@ -56,6 +60,8 @@ onDislike (Optional) - Default value: null - Callback function, if a user dislik
 
 onLike (Optional) - Default value: null - Callback function if a user likes a item. Parameter assigned: The current li item.
 
+onNextLoaded (Optional) - Default value: null - Callback function if new data got loaded and appended to the stack.
+
 animationRevertSpeed (Optional) - Default value: 200 - Speed in milliseconds the item reverts back to the init state.
 
 animationSpeed (Optional) - Default value: 400 - Speed in milliseconds the item go away on like/dislike.
@@ -66,6 +72,7 @@ likeSelector (Optional) - Default value: .like - CSS selector of a like image in
 
 dislikeSelector (Optional) - Default value: .dislike - CSS selector of a like image in the pane.
 
+nextSelector (Optional) - Default value: null - CSS selector of a link which gets new data
 
 jTinder Methods
 -------------------------
@@ -96,6 +103,11 @@ $("#tinderslide").jTinder({
 	animationSpeed: 400,
 	threshold: 1,
 	likeSelector: '.like',
-	dislikeSelector: '.dislike'
+	dislikeSelector: '.dislike',
+        nextSelector: '.nextNav',
+    onNextLoaded: function (items) {
+        alert('New Data loaded')
+    }
+
 });
 ```
