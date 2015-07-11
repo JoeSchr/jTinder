@@ -6,7 +6,7 @@ By: Joe Schroecker
 Fork Reason
 ---------------
 
-This fork adds a feature to “infinite” load new data for the card stack from a link on the site.
+This fork adds a feature to “infinite” load new data via ajax for the card stack from a link on the site.
 
 jTinder v.1.0.0
 --------
