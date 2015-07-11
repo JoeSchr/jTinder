@@ -12,13 +12,14 @@
 		defaults = {
 			onDislike: null,
 			onLike: null,
+			beforeNextLoaded: null,
 			onNextLoaded: null,
 			animationRevertSpeed: 200,
 			animationSpeed: 400,
 			threshold: 1,
 			loadNextThreshold: 5,
 			likeSelector: '.like',
-			dislikeSelector: '.dislike',			
+			dislikeSelector: '.dislike',
 			nextSelector: null,
 			itemSeletor: '.infinite-item'
 		};
@@ -59,7 +60,7 @@
 			likePane.animate({'opacity': 0}, 1000);
 			dislikePane.animate({'opacity': 0}, 1000);
 			this.current_pane.animate({'opacity': 0}, 1000);
-			
+
 			return this.hideTopPane();
 		},
 
@@ -67,7 +68,7 @@
 	    {
 	    	if(this.noMoreData)
 	    		return;
-	    	
+
 	    	if(!this.nextUrl)  // first time or last time
 	    		this.noMoreData = True;
 
@@ -78,7 +79,7 @@
 			$.ajax({url: this.nextUrl, context: this}).done(function(data,textStatus,jqXHR)
 			{
 				var $items = $(data).find(this.settings.itemSelector);
-				
+
 				this.container.prepend($items);
                 this.panes = $items.parent().find("li:visible");
 
@@ -89,12 +90,12 @@
 				this.nextUrl = this.fetchNextUrl($(data));
 				if(!this.nextUrl || this.nextUrl == oldUrl)
 					noMoreData = true;
-				
+
 				this.clearUnused();
-				
+
 				if(this.settings.onNextLoaded) // callback
 	    			this.settings.onNextLoaded($items, this);
-	    	
+
 			});
 	    },
 
@@ -106,11 +107,11 @@
 				this.loadNext();
 				return
 			}
-						
+
 			this.index--;
 			this.current_pane = this.panes.eq(this.index);
 		},
-		
+
 		fetchNextUrl: function($context) {
 			var link;
 			link = $context.find(this.settings.nextSelector);

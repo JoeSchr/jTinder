@@ -69,6 +69,8 @@ onDislike (Optional) - Default value: null - Callback function, if a user dislik
 
 onLike (Optional) - Default value: null - Callback function if a user likes a item. Parameter assigned: The current li item.
 
+beforeNextLoaded (Optional) - Default value: null - Callback function before ajax calls for loading new items.
+
 onNextLoaded (Optional) - Default value: null - Callback function if new data got loaded and appended to the stack.
 
 animationRevertSpeed (Optional) - Default value: 200 - Speed in milliseconds the item reverts back to the init state.
