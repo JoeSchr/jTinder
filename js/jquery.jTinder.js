@@ -39,7 +39,7 @@
 			this.container = $(element).find("ul");
 			this.noMoreData = false;
 			this.panes = $(this.container.find(this.settings.itemSelector));
-			this.index = this.panes.length; // faster if we just manage it ourselves and not recalculate evey next()
+			this.index = this.panes.length-1; // faster if we just manage it ourselves and not recalculate evey next()
 			this.nextUrl = this.fetchNextUrl($); // fetchNextUrl from current document
 			this.currentPane = $(this.panes.last());
 			this.paneWidth = this.currentPane.width();
