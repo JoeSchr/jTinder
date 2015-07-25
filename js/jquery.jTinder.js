@@ -51,11 +51,7 @@
 			this.lastPosY = 0;
 			this.posX = 0;
 			this.posY = 0;
-			
-			/*var self=this;
-			this.panes.find("img").each(function(){
-				self.switchLazyImage($(this));
-			});*/
+
 			this.switchLazyImage(this.currentPane.find("img").first(), true);
 			this.currentPane.show();
 			this.prepareNext();
@@ -78,8 +74,8 @@
 		// returns promise for animate effects
 		hideTopPane: function () {
 
-			/*likePane.animate({'opacity': 0}, 1000);
-			dislikePane.animate({'opacity': 0}, 1000);*/
+			likePane.animate({'opacity': 0}, 1000);
+			dislikePane.animate({'opacity': 0}, 1000);
 			return this.currentPane.animate({'opacity': 0}, 500).promise()
 		},
 
@@ -91,7 +87,7 @@
 				return
 			}
 
-			this.index--;			
+			this.index--;
 			this.currentPane = this.panes.eq(this.index);
 			this.prepareNext();
 		},
@@ -105,19 +101,19 @@
 		},
 
 		switchLazyImage: function($img, forceVisible)
-		{		
+		{
 			$img = $img ? $img : this.currentPane.find("img").first();
 			if(!forceVisible && !$img.is("[lazySrc]")) // not lazy yet
-			{   
+			{
 			   switchAttribute($img,"src","lazySrc");
 			}
 			else // switch back
 			{
-				if($img.is("[lazySrc]")) // make visible if there a lazy			
+				if($img.is("[lazySrc]")) // make visible if there a lazy
 					switchAttribute($img,"lazySrc","src");
 				if(this.settings.onImageLoading) // callback
-	    			this.settings.onImageLoading($img, this);
-			}			 
+					this.settings.onImageLoading($img, this);
+			}
 
 		},
 
@@ -144,10 +140,6 @@
 				this.container.prepend($items);
                 this.panes = this.container.find(this.settings.itemSelector);
                 var self = this;
-                /*this.panes.find("img").each(function(){
-                	 var $this = $(this);
-                	 self.switchLazyImage($this);
-                })*/
 
 				this.index = this.panes.length-1;// combine old and new items
 				this.currentPane = $(this.panes.eq(this.index));
@@ -166,7 +158,7 @@
 			});
 	    },
 
-		
+
 
 		fetchNextUrl: function($context) {
 			var link;
@@ -255,11 +247,11 @@
 						//this.currentPane.css('opacity', 1-opa); // makes currentPane also opaque depending on delta
 
 						if (this.posX >= 0) {
-							//this.currentPane.css('transform', "translate(" + this.posX + "px, 0px) rotate(" + (percent / 2) + "deg)");
+							this.currentPane.css('transform', "translate(" + this.posX + "px, 0px) rotate(" + (percent / 2) + "deg)");
 							likePane.css('opacity', opa);
 							dislikePane.css('opacity', 0);
 						} else if (this.posX < 0) {
-							//this.currentPane.css('transform', "translate(" + this.posX + "px, 0px) rotate(" + (percent / 2) + "deg)");
+							this.currentPane.css('transform', "translate(" + this.posX + "px, 0px) rotate(" + (percent / 2) + "deg)");
 							dislikePane.css('opacity', opa);
 							likePane.css('opacity', 0);
 						}
@@ -297,7 +289,7 @@
 	function switchAttribute($elem, attr, repl)
 	{
 	 	$elem.attr(repl,$elem.attr(attr));
-        $elem.removeAttr(attr);	
+        $elem.removeAttr(attr);
 	};
 
 	$.fn[ pluginName ] = function (options) {
