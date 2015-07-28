@@ -236,18 +236,18 @@
                     if(this.touchStart === false) {
                         if(ev.type == 'mousedown')
                             ev.preventDefault();
-                        ev.preventDefault();
+
                         this.touchStart = true;
-                        this.xStart = ev.originalEvent.touches[0].pageX;
-                        this.yStart = ev.originalEvent.touches[0].pageY;
+                        this.xStart = ev.pageX || ev.originalEvent.touches[0].pageX;
+                        this.yStart = ev.pageY || ev.originalEvent.touches[0].pageY;
                         this.scrollStart = $(window).scrollTop();
                     }
                 case this.moveEvent:
                     if(this.touchStart === true) {
                         if(ev.type == 'mousemove')
                             ev.preventDefault();
-                        var pageX = typeof ev.pageX == 'undefined' ? ev.originalEvent.touches[0].pageX : ev.pageX;
-                        var pageY = typeof ev.pageY == 'undefined' ? ev.originalEvent.touches[0].pageY : ev.pageY;
+                        var pageX = ev.pageX || ev.originalEvent.touches[0].pageX;
+                        var pageY = ev.pageY || ev.originalEvent.touches[0].pageY;
                         var delta = this.calcPos(pageX, pageY);
 
                         var percent = delta.x * 100 / this.paneWidth;
